@@ -23,4 +23,7 @@ Needs-info notes are internal. Staff follow up using the submitted contact detai
 
 ## Remaining before live use
 
-Hosted migration/permission tests, production email, account invitations, data retention/privacy approval, backups and restoration check, and administrator MFA policy/setup. The current implementation uses email OTP, short-lived tokens held in memory, and requires signing in again on refresh/expiry. It does not yet enforce TOTP MFA. This must be evaluated before handling real financial records.
+Hosted migration/permission tests, production email, account invitations, data retention/privacy approval, backups and restoration check, and administrator MFA policy/setup. The implementation supports email links or OTP. Verified administrator sessions use short-lived HttpOnly, same-site cookies; refreshing the dashboard retains the session until expiry. It does not yet enforce TOTP MFA. This must be evaluated before handling real financial records.
+
+## Current hosted setup
+Supabase schema and 12 project rows applied; owner invitation accepted. Public project totals verified; anonymous donor-table reads denied. Rollback tests passed for approval, duplicate prevention and reversal. GitHub source uploaded privately. Supabase test email rate limit was reached during browser sign-in testing; stop sending further test emails until cooldown or custom SMTP is configured. Browser sign-in/session persistence is not yet validated. Production Turnstile, custom SMTP, Cloudflare deployment and end-to-end browser verification remain outstanding.

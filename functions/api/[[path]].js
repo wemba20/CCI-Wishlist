@@ -7,14 +7,20 @@ export async function onRequest({request,env,params}){
  const ready=(!testKeys||localTest)&&Boolean(env.SUPABASE_URL&&env.SUPABASE_ANON_KEY&&env.SUPABASE_SERVICE_ROLE_KEY&&env.TURNSTILE_SITE_KEY&&env.TURNSTILE_SECRET_KEY);
  if(path==='config')return json({ready,submissionsEnabled:ready&&env.SUBMISSIONS_ENABLED==='true',supabaseUrl:env.SUPABASE_URL||'',publishableKey:env.SUPABASE_ANON_KEY||'',turnstileSiteKey:env.TURNSTILE_SITE_KEY||''});
  if(!ready)return json({error:'The shared database is not connected yet. Submissions are disabled.'},503);
- const db=async(name,body={},privileged=false)=>{const key=privileged?env.SUPABASE_SERVICE_ROLE_KEY:env.SUPABASE_ANON_KEY;const r=await fetch(`${env.SUPABASE_URL}/rest/v1/rpc/${name}`,{method:'POST',headers:{apikey:key,...(privileged&&key.startsWith('eyJ')?{Authorization:`Bearer ${key}`} :!privileged&&request.headers.get('Authorization')?{Authorization:request.headers.get('Authorization')} :{}),'Content-Type':'application/json'},body:JSON.stringify(body)});const result=await r.json();if(!r.ok){const e=Error(result.message||'Database request failed.');e.status=r.status;throw e}return result};
+ const cookieToken=(request.headers.get('Cookie')||'').split(';').map(v=>v.trim()).find(v=>v.startsWith('cci_session='))?.slice(12);
+ const authorization=request.headers.get('Authorization')||(cookieToken?'Bearer '+cookieToken:'');
+ const cookieOptions=`Path=/api; HttpOnly; SameSite=Strict${new URL(request.url).protocol==='https:'?'; Secure':''}`;
+ const db=async(name,body={},privileged=false)=>{const key=privileged?env.SUPABASE_SERVICE_ROLE_KEY:env.SUPABASE_ANON_KEY;const r=await fetch(`${env.SUPABASE_URL}/rest/v1/rpc/${name}`,{method:'POST',headers:{apikey:key,...(privileged&&key.startsWith('eyJ')?{Authorization:`Bearer ${key}`} :!privileged&&authorization?{Authorization:authorization} :{}),'Content-Type':'application/json'},body:JSON.stringify(body)});const result=await r.json();if(!r.ok){const e=Error(result.message||'Database request failed.');e.status=r.status;throw e}return result};
  try{
   if(request.method==='GET'&&path==='totals')return json(await db('public_project_totals'));
-  if(request.method==='GET'&&path==='admin'){if(!request.headers.get('Authorization')?.startsWith('Bearer '))return json({error:'Sign in to continue.'},401);return json(await db('admin_snapshot'))}
+  if(request.method==='GET'&&path==='admin'){if(!authorization.startsWith('Bearer '))return json({error:'Sign in to continue.'},401);return json(await db('admin_snapshot'))}
   if(request.method==='POST'){
    if(request.headers.get('Origin')!==new URL(request.url).origin)return json({error:'Request origin not allowed.'},403);
    if(!request.headers.get('Content-Type')?.includes('application/json'))return json({error:'JSON required.'},415);
    const raw=await request.text();if(raw.length>12000)return json({error:'Request too large.'},413);const b=JSON.parse(raw);
+   if(path==='logout'){const response=json({ok:true});response.headers.set('Set-Cookie',`cci_session=; Max-Age=0; ${cookieOptions}`);return response}
+   if(path==='session'){if(!/^Bearer [A-Za-z0-9._-]+$/.test(authorization))return json({error:'Invalid session.'},401);await db('admin_snapshot');const jwt=authorization.slice(7);const claims=JSON.parse(atob(jwt.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));const ttl=Math.max(0,Math.min(3600,Math.floor(Number(claims.exp)-Date.now()/1000)));if(!ttl)return json({error:'Session expired.'},401);const response=json({ok:true});response.headers.set('Set-Cookie',`cci_session=${jwt}; Max-Age=${ttl}; ${cookieOptions}`);return response}
+
    if(path==='submit'){
     if(env.SUBMISSIONS_ENABLED!=='true')return json({error:'Submissions are not open yet.'},503);
     const clean=validateSubmission(b);
