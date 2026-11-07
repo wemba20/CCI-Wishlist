@@ -131,3 +131,5 @@ h3{letter-spacing:-.6px}
 .account-menu-panel{position:absolute;right:0;top:calc(100% + 8px);min-width:190px;padding:6px;background:white;border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px #301b2314;z-index:5}
 .account-menu-panel button{display:block;width:100%;text-align:left;border:0;border-radius:6px;padding:12px;background:transparent;color:var(--ink);font-size:13px}
 .account-menu-panel button:hover,.account-menu-panel button:focus-visible{background:var(--cream);color:var(--red)}
+
+.direction-icon{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.16em;flex-shrink:0}.text-link .direction-icon{margin-left:.3em}.confidence-icon .direction-icon{width:24px;height:24px;vertical-align:middle}
