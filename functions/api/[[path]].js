@@ -5,13 +5,16 @@ export async function onRequest({request,env,params}){
  const localTest=env.LOCAL_TESTING==='true'&&['127.0.0.1','localhost'].includes(new URL(request.url).hostname);
  const testKeys=String(env.TURNSTILE_SITE_KEY||'').startsWith('1x000000');
  const ready=(!testKeys||localTest)&&Boolean(env.SUPABASE_URL&&env.SUPABASE_ANON_KEY&&env.SUPABASE_SERVICE_ROLE_KEY&&env.TURNSTILE_SITE_KEY&&env.TURNSTILE_SECRET_KEY);
- if(path==='config')return json({ready,submissionsEnabled:ready&&env.SUBMISSIONS_ENABLED==='true',supabaseUrl:env.SUPABASE_URL||'',publishableKey:env.SUPABASE_ANON_KEY||'',turnstileSiteKey:env.TURNSTILE_SITE_KEY||''});
+ const configResponse=testMode=>json({ready,submissionsEnabled:ready&&(env.SUBMISSIONS_ENABLED==='true'||testMode),testMode,supabaseUrl:env.SUPABASE_URL||'',publishableKey:env.SUPABASE_ANON_KEY||'',turnstileSiteKey:env.TURNSTILE_SITE_KEY||''});
+ if(path==='config'&&!ready)return configResponse(false);
  if(!ready)return json({error:'The shared database is not connected yet. Submissions are disabled.'},503);
  const cookieToken=(request.headers.get('Cookie')||'').split(';').map(v=>v.trim()).find(v=>v.startsWith('cci_session='))?.slice(12);
  const authorization=request.headers.get('Authorization')||(cookieToken?'Bearer '+cookieToken:'');
  const cookieOptions=`Path=/api; HttpOnly; SameSite=Strict${new URL(request.url).protocol==='https:'?'; Secure':''}`;
  const db=async(name,body={},privileged=false)=>{const key=privileged?env.SUPABASE_SERVICE_ROLE_KEY:env.SUPABASE_ANON_KEY;const r=await fetch(`${env.SUPABASE_URL}/rest/v1/rpc/${name}`,{method:'POST',headers:{apikey:key,...(privileged&&key.startsWith('eyJ')?{Authorization:`Bearer ${key}`} :!privileged&&authorization?{Authorization:authorization} :{}),'Content-Type':'application/json'},body:JSON.stringify(body)});const result=await r.json();if(!r.ok){const e=Error(result.message||'Database request failed.');e.status=r.status;throw e}return result};
+ const canTest=async()=>{if(env.ADMIN_TESTING!=='true'||!authorization.startsWith('Bearer '))return false;try{return ['owner','finance'].includes((await db('admin_snapshot')).role)}catch{return false}};
  try{
+  if(request.method==='GET'&&path==='config')return configResponse(env.SUBMISSIONS_ENABLED!=='true'&&await canTest());
   if(request.method==='GET'&&path==='totals')return json(await db('public_project_totals'));
   if(request.method==='GET'&&path==='admin'){if(!authorization.startsWith('Bearer '))return json({error:'Sign in to continue.'},401);return json(await db('admin_snapshot'))}
   if(request.method==='POST'){
@@ -22,8 +25,10 @@ export async function onRequest({request,env,params}){
    if(path==='session'){if(!/^Bearer [A-Za-z0-9._-]+$/.test(authorization))return json({error:'Invalid session.'},401);await db('admin_snapshot');const jwt=authorization.slice(7);const claims=JSON.parse(atob(jwt.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));const ttl=Math.max(0,Math.min(3600,Math.floor(Number(claims.exp)-Date.now()/1000)));if(!ttl)return json({error:'Session expired.'},401);const response=json({ok:true});response.headers.set('Set-Cookie',`cci_session=${jwt}; Max-Age=${ttl}; ${cookieOptions}`);return response}
 
    if(path==='submit'){
-    if(env.SUBMISSIONS_ENABLED!=='true')return json({error:'Submissions are not open yet.'},503);
+    const testMode=env.SUBMISSIONS_ENABLED!=='true';
+    if(testMode&&!await canTest())return json({error:'Submissions are not open yet.'},503);
     const clean=validateSubmission(b);
+    if(testMode&&(!clean.donor_name.startsWith('TEST ')||!clean.payment_reference.startsWith('TEST-')&&clean.kind==='payment'))return json({error:'Administrator testing requires a name beginning TEST and a payment reference beginning TEST-.'},400);
     const v=await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({secret:env.TURNSTILE_SECRET_KEY,response:b.turnstileToken,remoteip:request.headers.get('CF-Connecting-IP')})}).then(r=>r.json());
     if(!v.success||(!localTest&&(v.hostname!==new URL(request.url).hostname||v.action!=='giving')))return json({error:'Please complete the security check again.'},400);
     return json(await db('create_submission',{payload:clean},true),201);
