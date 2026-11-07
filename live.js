@@ -23,6 +23,9 @@ window.Giving=(()=>{
  try{renderAdmin(root,await api('admin'));return}catch{}
  token=null;
  root.innerHTML='<div class="page form-page"><span class="eyebrow">CCI OTTAWA · PRIVATE WORKSPACE</span><h1>Administrator sign-in</h1><form id="admin-login" class="box"><label class="field">Email<input type="email" name="email" required autocomplete="email"></label><label class="field">Password<input type="password" name="password" required autocomplete="current-password"></label><button class="btn">Sign in</button><p role="alert" id="login-error"></p></form></div>';
+ const signInError=new URLSearchParams(location.search).get('signin_error');
+ if(signInError){document.querySelector('#login-error').textContent=signInError==='unapproved'?'This Google account is not approved for dashboard access.':signInError==='expired'?'The sign-in session expired. Please try again.':'Google sign-in could not complete. Please try again or use your password.';history.replaceState(null,'',location.pathname)}
+ if(config.googleSignInEnabled)document.querySelector('#admin-login').insertAdjacentHTML('afterbegin','<a class="btn outline google-signin" href="/api/google">Sign in with Google</a><p class="muted">Or use your email and password</p>');
  document.querySelector('#admin-login').onsubmit=async ev=>{
  ev.preventDefault();const form=ev.target,button=form.querySelector('button'),data=new FormData(form);button.disabled=true;
  try{const d=await auth('token?grant_type=password',{email:data.get('email'),password:data.get('password')});form.reset();token=d.access_token;expiry=Date.now()+d.expires_in*1000;await api('session',{});token=null;expiry=0;await admin()}

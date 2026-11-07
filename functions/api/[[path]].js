@@ -5,7 +5,7 @@ export async function onRequest({request,env,params}){
  const localTest=env.LOCAL_TESTING==='true'&&['127.0.0.1','localhost'].includes(new URL(request.url).hostname);
  const testKeys=String(env.TURNSTILE_SITE_KEY||'').startsWith('1x000000');
  const ready=(!testKeys||localTest)&&Boolean(env.SUPABASE_URL&&env.SUPABASE_ANON_KEY&&env.SUPABASE_SERVICE_ROLE_KEY&&env.TURNSTILE_SITE_KEY&&env.TURNSTILE_SECRET_KEY);
- const configResponse=testMode=>json({ready,submissionsEnabled:ready&&(env.SUBMISSIONS_ENABLED==='true'||testMode),testMode,supabaseUrl:env.SUPABASE_URL||'',publishableKey:env.SUPABASE_ANON_KEY||'',turnstileSiteKey:env.TURNSTILE_SITE_KEY||''});
+ const configResponse=testMode=>json({ready,submissionsEnabled:ready&&(env.SUBMISSIONS_ENABLED==='true'||testMode),testMode,googleSignInEnabled:env.GOOGLE_SIGN_IN_ENABLED==='true',supabaseUrl:env.SUPABASE_URL||'',publishableKey:env.SUPABASE_ANON_KEY||'',turnstileSiteKey:env.TURNSTILE_SITE_KEY||''});
  if(path==='config'&&!ready)return configResponse(false);
  if(!ready)return json({error:'The shared database is not connected yet. Submissions are disabled.'},503);
  const cookieToken=(request.headers.get('Cookie')||'').split(';').map(v=>v.trim()).find(v=>v.startsWith('cci_session='))?.slice(12);
