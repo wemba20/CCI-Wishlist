@@ -25,7 +25,7 @@ Administrator access is invitation-only and checked in the database. Public tota
 
 ## Projects and images
 
-12 projects, total C$51,900. Prices cover the full quantity for each row; quantities are retained in project data but not displayed on cards. Church photographs were supplied by CCI Ottawa. Equipment images are AI-generated illustrations and may differ from exact product appearances. Logo: red symbol with black Ottawa lettering.
+12 projects, total C$52,000. Prices cover the full quantity for each row; quantities are retained in project data but not displayed on cards. Church photographs were supplied by CCI Ottawa. Equipment images are AI-generated illustrations and may differ from exact product appearances. Logo: red symbol with black Ottawa lettering.
 
 ## Verification status
 
