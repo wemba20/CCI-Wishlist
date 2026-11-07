@@ -9,6 +9,6 @@ insert into public.giving_projects(id,name,goal_cents) values
 ('sigma-70-200','Sigma 70–200mm f/2.8',250000),
 ('monitors','Monitors for Production Room',100000),
 ('rug','Stage Rug',150000),
-('security','Security Camera',90000),
+('security','Security Camera',100000),
 ('water','Water Dispenser',40000)
 on conflict(id) do update set name=excluded.name,goal_cents=excluded.goal_cents;

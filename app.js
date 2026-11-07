@@ -83,7 +83,7 @@ const projects=[
     "id": "security",
     "name": "Security Camera",
     "quantity": 2,
-    "goal": 900,
+    "goal": 1000,
     "category": "Safety",
     "desc": "Two security cameras to help the team monitor shared spaces and care for the church venue."
   },
