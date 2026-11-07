@@ -1,3 +1,9 @@
 name = "cci-ottawa-giving"
 compatibility_date = "2026-11-04"
 pages_build_output_dir = "dist"
+
+[vars]
+SUPABASE_URL = "https://pakjsdeakcrqmenmuzpl.supabase.co"
+SUPABASE_ANON_KEY = "sb_publishable_tIO7HpfRiQv9V1R6rO6Zhg_-QqHqd-q"
+TURNSTILE_SITE_KEY = "0x4AAAAAAF30UWYD_Dcyx1gV"
+SUBMISSIONS_ENABLED = "false"
