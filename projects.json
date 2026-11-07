@@ -1,0 +1,98 @@
+[
+  {
+    "id": "screen",
+    "name": "LED Screen Main",
+    "quantity": 1,
+    "goal": 23000,
+    "category": "Technology",
+    "desc": "A panoramic LED screen spanning the stage, creating a clear backdrop for worship, teaching, and shared moments."
+  },
+  {
+    "id": "montage",
+    "name": "Yamaha Montage M8x · 88 Keys",
+    "quantity": 1,
+    "goal": 7500,
+    "category": "Audio",
+    "desc": "An 88-key workstation keyboard to support our worship team and live music ministry."
+  },
+  {
+    "id": "modx",
+    "name": "Yamaha MODX M7 · 76 Keys",
+    "quantity": 1,
+    "goal": 3100,
+    "category": "Audio",
+    "desc": "A 76-key synthesizer to support rehearsals, worship arrangements, and our growing music team."
+  },
+  {
+    "id": "sony-fx2",
+    "name": "Sony FX2",
+    "quantity": 1,
+    "goal": 4000,
+    "category": "Visual",
+    "desc": "A dedicated cinema camera to help our team capture worship, teaching, and church life with clarity."
+  },
+  {
+    "id": "sony-fx30",
+    "name": "Sony FX30",
+    "quantity": 1,
+    "goal": 2500,
+    "category": "Visual",
+    "desc": "An additional camera for flexible angles and consistent coverage of services and special gatherings."
+  },
+  {
+    "id": "canon-r6",
+    "name": "Canon EOS R6 Mark II Body",
+    "quantity": 1,
+    "goal": 3500,
+    "category": "Visual",
+    "desc": "A camera body to support photography and visual storytelling across our church community."
+  },
+  {
+    "id": "sigma-24-70",
+    "name": "Sigma 24–70mm f/2.8",
+    "quantity": 1,
+    "goal": 2000,
+    "category": "Visual",
+    "desc": "A versatile zoom lens for wider service coverage, ministry moments, and church photography."
+  },
+  {
+    "id": "sigma-70-200",
+    "name": "Sigma 70–200mm f/2.8",
+    "quantity": 1,
+    "goal": 2500,
+    "category": "Visual",
+    "desc": "A telephoto zoom lens to capture clear, close views of the stage from a respectful distance."
+  },
+  {
+    "id": "monitors",
+    "name": "Monitors for Production Room",
+    "quantity": 3,
+    "goal": 1000,
+    "category": "Technology",
+    "desc": "Three monitors to help our production team follow camera views and coordinate service visuals."
+  },
+  {
+    "id": "rug",
+    "name": "Stage Rug",
+    "quantity": 1,
+    "goal": 1500,
+    "category": "Altar",
+    "desc": "A stage rug to help define the altar area and bring a finished, welcoming feel to the platform."
+  },
+  {
+    "id": "security",
+    "name": "Security Camera",
+    "quantity": 2,
+    "goal": 900,
+    "category": "Safety",
+    "desc": "Two security cameras to help the team monitor shared spaces and care for the church venue."
+  },
+  {
+    "id": "water",
+    "name": "Water Dispenser",
+    "quantity": 1,
+    "goal": 400,
+    "category": "Kitchen",
+    "desc": "A practical water dispenser to keep our church family, volunteers, and visitors refreshed."
+  }
+]

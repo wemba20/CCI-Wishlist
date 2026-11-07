@@ -1,0 +1,26 @@
+# Connect the full workflow
+
+Current state: code prepared; hosted Supabase and Cloudflare services are NOT connected or tested. Public submissions fail closed until configured. Never use donor data in the demo dashboard (#dashboard).
+
+1. Create a church-owned private GitHub repository from this directory ONLY. Do not add the workspace parent: its Git root is outside this project. Exclude secrets, screenshots, generated prompt provenance files with local paths, and obsolete assets before pushing.
+2. Create a Supabase project. Run supabase/001_giving.sql then 002_projects.sql in its SQL editor. Run this once on an empty project; do not rerun blindly against live data.
+3. Disable public sign-ups in Supabase Authentication settings. Set the email OTP template to display {{ .Token }} and configure a production email provider for delivery. Set the site URL to the Cloudflare preview/live origin. Invite the three approved admin emails through Supabase Auth. Do not paste passwords or service-role keys into chat.
+4. After each invited user appears in Auth, an owner with database access adds their exact UUID to giving_admins, for example:
+
+       insert into public.giving_admins(user_id,role) values ('AUTH-USER-UUID','owner');
+
+   Use finance for the other administrators, or viewer for read-only access. Only explicitly allowlisted active users can read records; only owner/finance can review. Revocation: set active=false. No public sign-up or browser role editing. Admin invites and role changes are deliberately performed by the project owner in Supabase, not by a public endpoint.
+5. Connect GitHub to Cloudflare Pages. Build command: npm run build. Output directory: dist. Use Node 22 or newer. Only explicitly copied public assets are deployed; local secrets and database scripts stay outside dist. Pages compiles functions/api/[[path]].js. This is no longer a static ZIP-only deployment.
+6. Create a Turnstile widget restricted to the exact review/live hostnames. Configure variables from .env.example in Cloudflare Pages. Store the service-role and Turnstile secret as encrypted secrets. The publishable key is public; service-role key must never reach the browser. Keep SUBMISSIONS_ENABLED=false until validation is complete.
+7. Test in a separate test Supabase project with fictional donor records: signed-out requests cannot read /api/admin; a signed-in non-admin is denied; viewer cannot approve; finance can approve; repeat transaction reference is rejected; pending/rejected reports do not affect public totals; reversed approved payments reduce totals; search/export/audit work; pledge approvals update pledged only; identical full pledge/payment matching fulfills that pledge. Partial payments need manual follow-up and do not automatically reduce the pledge.
+8. Verify email delivery, Turnstile, and browser refresh across two devices. Set SUBMISSIONS_ENABLED=true only after validation. Publish the privacy/contact/receipt information and agree the finance review turnaround before accepting real member submissions.
+
+## Workflow
+
+Member chooses project, pays externally via https://bit.ly/givecciot, then submits date, amount, Tithely reference, name and optional email/note. Server validates Turnstile and saves a pending report with an opaque CCI reference. Staff sign in at /admin/ with email OTP, review actual Tithely records independently, and approve or mark needs_info/rejected with a note. No automated Tithely confirmation is claimed. Public totals refresh every 30 seconds from approved payment records only. Donor details are never in the public totals response.
+
+Needs-info notes are internal. Staff follow up using the submitted contact details; automated donor email notifications are not implemented. Transaction exports for manual review can be taken from Tithely; a custom CSV importer still requires a de-identified real export and is not wired to live records. Currency is CAD; monetary storage is integer cents. Fees are not subtracted from the campaign's gross gift total. Reversals retain references to prevent double counting. All review changes record actor and timestamp.
+
+## Remaining before live use
+
+Hosted migration/permission tests, production email, account invitations, data retention/privacy approval, backups and restoration check, and administrator MFA policy/setup. The current implementation uses email OTP, short-lived tokens held in memory, and requires signing in again on refresh/expiry. It does not yet enforce TOTP MFA. This must be evaluated before handling real financial records.

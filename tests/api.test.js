@@ -1,0 +1,10 @@
+const checks=[];const test=(name,fn)=>checks.push({name,fn});
+if(!Response.json)Response.json=(body,options={})=>new Response(JSON.stringify(body),{...options,headers:{'Content-Type':'application/json',...options.headers}});
+import assert from 'node:assert/strict';import {validateSubmission,onRequest} from '../functions/api/[[path]].js';
+const valid={kind:'payment',amount_cents:400000,project_id:'sony-fx2',donor_name:'Fictional Member',payment_date:'2026-01-01',payment_reference:'TX-123',submission_key:'53ae4ac0-f001-4000-8000-000000000001'};
+test('validates money in integer cents and requires matching evidence',()=>{assert.equal(validateSubmission(valid).amount_cents,400000);for(const b of [{...valid,amount_cents:NaN},{...valid,amount_cents:1.5},{...valid,payment_reference:''},{...valid,payment_date:'2999-01-01'},{...valid,donor_name:'X'}])assert.throws(()=>validateSubmission(b))});
+test('pledges require no payment but retain identity checks',()=>assert.equal(validateSubmission({...valid,kind:'pledge',payment_date:null,payment_reference:''}).kind,'pledge'));
+test('unconfigured service fails closed and exposes no secrets',async()=>{let r=await onRequest({request:new Request('https://church.test/api/config'),env:{SUPABASE_SERVICE_ROLE_KEY:'never-public'},params:{path:['config']}});assert.equal((await r.text()).includes('never-public'),false);r=await onRequest({request:new Request('https://church.test/api/submit',{method:'POST'}),env:{},params:{path:['submit']}});assert.equal(r.status,503)});
+test('cross-origin mutations blocked before database access',async()=>{const r=await onRequest({request:new Request('https://church.test/api/review',{method:'POST',headers:{Origin:'https://evil.test','Content-Type':'application/json'},body:'{}'}),env:{SUPABASE_URL:'x',SUPABASE_ANON_KEY:'x',SUPABASE_SERVICE_ROLE_KEY:'x',TURNSTILE_SITE_KEY:'x',TURNSTILE_SECRET_KEY:'x'},params:{path:['review']}});assert.equal(r.status,403)});
+
+for(const {name,fn} of checks){await fn();console.log("PASS",name)}

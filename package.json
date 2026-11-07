@@ -1,0 +1,13 @@
+{
+  "name": "cci-ottawa-giving",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/api.test.js",
+    "dev": "npm run build && npx wrangler pages dev dist --port 4174",
+    "build": "node scripts/build.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
