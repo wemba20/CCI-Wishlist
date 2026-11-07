@@ -22,6 +22,14 @@ export async function onRequest({request,env,params}){
    if(!request.headers.get('Content-Type')?.includes('application/json'))return json({error:'JSON required.'},415);
    const raw=await request.text();if(raw.length>12000)return json({error:'Request too large.'},413);const b=JSON.parse(raw);
    if(path==='logout'){const response=json({ok:true});response.headers.set('Set-Cookie',`cci_session=; Max-Age=0; ${cookieOptions}`);return response}
+   if(path==='password'){
+    if(!authorization.startsWith('Bearer '))return json({error:'Sign in before setting your password.'},401);
+    await db('admin_snapshot');
+    if(typeof b.password!=='string'||b.password.length<12||b.password.length>128)return json({error:'Use a password between 12 and 128 characters.'},400);
+    const result=await fetch(`${env.SUPABASE_URL}/auth/v1/user`,{method:'PUT',headers:{apikey:env.SUPABASE_ANON_KEY,Authorization:authorization,'Content-Type':'application/json'},body:JSON.stringify({password:b.password})});
+    if(!result.ok){const error=await result.json();return json({error:error.msg||error.message||'Password could not be saved. Sign in again and retry.'},400)}
+    return json({ok:true});
+   }
    if(path==='session'){if(!/^Bearer [A-Za-z0-9._-]+$/.test(authorization))return json({error:'Invalid session.'},401);await db('admin_snapshot');const jwt=authorization.slice(7);const claims=JSON.parse(atob(jwt.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));const ttl=Math.max(0,Math.min(3600,Math.floor(Number(claims.exp)-Date.now()/1000)));if(!ttl)return json({error:'Session expired.'},401);const response=json({ok:true});response.headers.set('Set-Cookie',`cci_session=${jwt}; Max-Age=${ttl}; ${cookieOptions}`);return response}
 
    if(path==='submit'){
