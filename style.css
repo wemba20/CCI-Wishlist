@@ -122,3 +122,12 @@ h3{letter-spacing:-.6px}
 /* Give the dispenser breathing room without cropping its top. */
 .project-art:has(img[src*="ottawa-water-project"]){background:#211d1c}
 .project-art img[src*="ottawa-water-project"]{object-fit:contain;padding:16px 10px 8px}
+
+/* Private dashboard account controls. */
+.account-menu{position:relative;flex-shrink:0}
+.account-menu summary{list-style:none;cursor:pointer;outline-offset:5px}
+.account-menu summary::-webkit-details-marker{display:none}
+.account-menu summary:focus-visible{outline:2px solid var(--red)}
+.account-menu-panel{position:absolute;right:0;top:calc(100% + 8px);min-width:190px;padding:6px;background:white;border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px #301b2314;z-index:5}
+.account-menu-panel button{display:block;width:100%;text-align:left;border:0;border-radius:6px;padding:12px;background:transparent;color:var(--ink);font-size:13px}
+.account-menu-panel button:hover,.account-menu-panel button:focus-visible{background:var(--cream);color:var(--red)}
