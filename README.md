@@ -19,7 +19,7 @@ See [SETUP.md](SETUP.md) and [.env.example](.env.example). Put local variables i
 
 ## Giving workflow
 
-Members pay at https://bit.ly/givecciot, return to submit a payment report, and receive a reference. Reports stay pending until church finance verifies the actual Tithely payment. Only approved payments increase public raised totals. Duplicate verified transaction references are blocked. Pledges are separate. Review changes are audited, and reversed gifts are removed from raised totals.
+Members pay at https://give.tithe.ly/?formId=0aba42c7-48ae-4545-918c-f01132edbb79&locationId=b22badae-5974-47d8-a315-5e46d6389d13&fundId=c7fcb07f-9839-426c-a7b1-96a85a453368, return to submit a payment report, and receive a reference. Reports stay pending until church finance verifies the actual Tithely payment. Only approved payments increase public raised totals. Duplicate verified transaction references are blocked. Pledges are separate. Review changes are audited, and reversed gifts are removed from raised totals.
 
 Administrator access is invitation-only and checked in the database. Public totals contain no donor information. The open `/#dashboard` route is an isolated demonstration using fictional records; it does not expose the private finance system.
 
